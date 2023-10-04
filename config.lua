@@ -49,6 +49,52 @@ lvim.builtin.which_key.mappings.t = {
 }
 lvim.builtin.which_key.mappings[";"] = { "<cmd>ToggleTerm<cr>", "Toggle terminal" }
 
+-- Formatters
+local formatters = require "lvim.lsp.null-ls.formatters"
+formatters.setup {
+  { name = "black" },
+  {
+    name = "prettier",
+    ---@usage arguments to pass to the formatter
+    -- these cannot contain whitespace
+    -- options such as `--line-width 80` become either `{"--line-width", "80"}` or `{"--line-width=80"}`
+    args = { "--print-width", "100" },
+    ---@usage only start in these filetypes, by default it will attach to all filetypes it supports
+    filetypes = { "typescript", "typescriptreact" },
+  },
+  {
+    name = "eslint_d",
+    filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+  }
+}
+
+local linters = require "lvim.lsp.null-ls.linters"
+linters.setup {
+  { name = "flake8" },
+  {
+    name = "shellcheck",
+    args = { "--severity", "warning" },
+  },
+  {
+    name = "eslint_d",
+    filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+  },
+  -- Lua linter
+  {
+    name = "luacheck",
+    filetypes = { "lua" },
+  }
+}
+
+local code_actions = require "lvim.lsp.null-ls.code_actions"
+code_actions.setup {
+  {
+    name = "proselint",
+  },
+}
+
+lvim.format_on_save.enabled = true
+
 lvim.plugins = {
   {
     "stevearc/dressing.nvim",
@@ -58,8 +104,10 @@ lvim.plugins = {
       })
     end,
   },
-  { "nvim-neorg/neorg", ft = "norg", -- lazy-load on filetype
-    config = true, -- run require("neorg").setup()
+  {
+    "nvim-neorg/neorg",
+    ft = "norg",                     -- lazy-load on filetype
+    config = true,                   -- run require("neorg").setup()
   },
   {
     "felipeagc/fleet-theme-nvim",
@@ -72,27 +120,26 @@ lvim.plugins = {
     config = function()
       vim.g["test#preserve_screen"] = false
       vim.g["test#python#runner"] = "pytest"
-
     end,
   },
   {
-		"github/copilot.vim",
-		event = "VeryLazy",
-		config = function()
-			-- copilot assume mapped
-			vim.g.copilot_assume_mapped = true
-			vim.g.copilot_no_tab_map = true
-		end,
-	},
-	{
-		"hrsh7th/cmp-copilot",
-		config = function()
-			lvim.builtin.cmp.formatting.source_names["copilot"] = "( )"
-			table.insert(lvim.builtin.cmp.sources, 2, { name = "copilot" })
-		end,
-	},
+    "github/copilot.vim",
+    event = "VeryLazy",
+    config = function()
+      -- copilot assume mapped
+      vim.g.copilot_assume_mapped = true
+      vim.g.copilot_no_tab_map = true
+    end,
+  },
   {
-  "phaazon/hop.nvim",
+    "hrsh7th/cmp-copilot",
+    config = function()
+      lvim.builtin.cmp.formatting.source_names["copilot"] = "( )"
+      table.insert(lvim.builtin.cmp.sources, 2, { name = "copilot" })
+    end,
+  },
+  {
+    "phaazon/hop.nvim",
     event = "BufRead",
     config = function()
       require("hop").setup()
@@ -120,7 +167,7 @@ lvim.plugins = {
         other_win_hl_color = "#e35e4f",
       })
     end,
- },
+  },
   {
     "f-person/git-blame.nvim",
     event = "BufRead",
